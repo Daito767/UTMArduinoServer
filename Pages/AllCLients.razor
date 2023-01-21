@@ -1,0 +1,62 @@
+﻿@page "/clients"
+@inject ReceivingServerFromArduino Server
+
+<PageTitle>Clienti arduino</PageTitle>
+
+@using ConnetToArduino.Data
+
+<table class="table">
+	<thead class="thead-dark">
+		<tr>
+			<th scope="col">Nr.</th>
+			<th scope="col">Id</th>
+			<th scope="col">Board</th>
+			<th scope="col">Platform</th>
+			<th scope="col">IP</th>
+			<th scope="col">Port</th>
+			<th scope="col">Statut</th>
+		</tr>
+	</thead>
+	<tbody>
+		@SetValue(out i, 0)
+		@foreach (var client in Server.clients)
+		{
+			@SetValue(out i, i + 1)
+			<tr>
+				<td>@i</td>
+				<th scope="row">@client.Id</th>
+				<td>@client.Board</td>
+				<td>@client.Platform</td>
+				<td>@client.EndPoint.Address.ToString()</td>
+				<td>@client.EndPoint.Port</td>
+				@if (client.Status == ConnectionState.Online)
+				{
+					<td class="text-success">@client.Status</td>
+				}
+				else
+				{
+					<td class="text-danger">@client.Status</td>
+				}
+			</tr>
+		}
+	</tbody>
+</table>
+
+@ReloadRenderPage(1000)
+
+@code{
+	private int i = 0;
+	List<ArduinoClient> clientsColone;
+
+	private string ReloadRenderPage(int delay)
+	{
+		Task.Run(async () => { await Task.Delay(delay); await InvokeAsync(() => StateHasChanged());});
+		return "";
+	}
+
+	private string SetValue<T>(out T value1, T value2)
+	{
+		value1 = value2;
+		return "";
+	}
+}

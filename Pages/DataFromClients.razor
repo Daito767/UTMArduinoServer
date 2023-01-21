@@ -1,0 +1,125 @@
+﻿@page "/clientsdata/{tab?}"
+@inject ReceivingServerFromArduino Server
+
+<PageTitle>Clienti arduino</PageTitle>
+
+@using ConnetToArduino.Data
+@using System.Net
+@using ConnetToArduino.Shared.DataFromClients
+
+
+@if (Server.clients.Count > 0)
+{
+	<ul class="nav nav-tabs">
+		@foreach (var client in Server.clients)
+		{
+			@SetValue(out CurrentClientAdr, FormatClientAdrres(client.EndPoint))
+			<li class="nav-item">
+				<a class="nav-link @CheckNavLinkState(CurrentClientAdr)" href="/clientsdata/@CurrentClientAdr">@client.Id</a>
+			</li>
+		}
+	</ul>
+
+	if (IsClientExist(tab))
+	{
+		<table class="table">
+			<thead class="thead-dark">
+				<tr>
+					<th scope="col" class="text-center">Nume</th>
+					<th scope="col" class="text-center">Valoare</th>
+					<th scope="col"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<CmdTable client=@GetClient(tab) />
+			</tbody>
+		</table>
+	}
+}
+else
+{
+	<p>Nu sunt clienti</p>
+}
+
+@ReloadRenderPage(1000)
+
+
+@code {
+	[Parameter] public string tab { get; set; } // Pastreaza adresa clientului selectat pentru vizualizare.
+	private string CurrentClientAdr;
+
+	protected override void OnInitialized()
+	{
+		if (Server.clients.Count > 0)
+		{
+			tab = FormatClientAdrres(Server.clients[0].EndPoint);
+		}
+	}
+ 
+	private string ReloadRenderPage(int delay)
+	{
+		Task.Run(async () => { await Task.Delay(delay); await InvokeAsync(() => StateHasChanged());});
+		return "";
+	}
+
+	private string CheckNavLinkState(string name)
+	{
+		if (name == tab)
+		{
+			return "active";
+		}
+		return "";
+	}
+
+	private string SetValue<T>(out T value1, T value2)
+	{
+		value1 = value2;
+		return "";
+	}
+
+	private bool IsClientExist(string strClient)
+	{
+		@foreach (var client in Server.clients)
+		{
+			if (FormatClientAdrres(client.EndPoint) == strClient)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private string FormatClientAdrres(IPEndPoint adrr)
+	{
+		return $"{adrr.Address.ToString()}:{adrr.Port}".Replace('.', '-'); //Daca in adresa se afla "." atunci apar erori.
+	}
+
+	private ArduinoClient GetClient(string strClient)
+	{
+		foreach (var client in Server.clients)
+		{
+			if (FormatClientAdrres(client.EndPoint) == strClient)
+			{
+				return client;
+			}
+		}
+
+		return new ArduinoClient();
+	}
+
+	private string ConvertStrArrayToOneStr(string[] array)
+	{
+		string new_str = "";
+		for (var i = 0; i < array.Length; i++)
+		{
+			new_str += array[i];
+			if (i != array.Length - 1)
+			{
+				new_str += ", ";
+			}
+		}
+
+		return new_str;
+	}
+}

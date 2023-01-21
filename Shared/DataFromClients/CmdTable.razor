@@ -1,0 +1,127 @@
+﻿@using ConnetToArduino.Data
+@inject ReceivingServerFromArduino Server
+
+
+@{
+	i = 0; 
+	ParseCmdTypes();
+}
+@foreach (var cmd in client.Commands)
+{
+	<tr>
+		<th scope="row" class="align-middle text-center"><div class="text-center">@GetWithoutType(@cmd.Key)</div></th>
+		<td class="align-middle text-center">@ConvertStrArrayToOneStr(@cmd.Value)</td>
+		@if (CommandsType[i] == CommandTypes.ButtonTF)
+		{
+			@if (ConvertStrArrayToOneStr(cmd.Value) == "1")
+			{
+				<td><button class="btn btn-danger text-white" @onclick="@(e => ChangeBtnTFState(cmd.Key.ToString(), cmd.Value[0]))">Opreste</button></td>
+			}
+			else if (ConvertStrArrayToOneStr(cmd.Value) == "0")
+			{
+				<td><button class="btn btn-success text-white" @onclick="@(e => ChangeBtnTFState(cmd.Key.ToString(), cmd.Value[0]))">Porneste</button></td>
+			}
+			else
+			{
+				<td>Valoare incopatibila</td>
+			}
+		}
+		else if (CommandsType[i] == CommandTypes.InputVariable)
+		{
+			<td>
+				<input type="text" class="" id="" placeholder="Valoarea noua" @bind="inputvalue">
+				<button class="btn btn-secondary text-white" @onclick="@(e => Server.SendCmdToClient(client, cmd.Key.ToString(), inputvalue))">Trimite</button>
+			</td>
+		}
+		else
+		{
+			<td></td>
+		}
+	</tr>
+
+	i+= 1;
+}
+
+@code {
+	[Parameter] public ArduinoClient client { get; set; }
+	private string? inputvalue;
+
+	private List<CommandTypes> CommandsType = new List<CommandTypes>();
+	private int i = 0;
+
+	protected override void OnInitialized()
+	{
+		ParseCmdTypes();
+	}
+
+	private async void ChangeBtnTFState(string valName, string value)
+	{
+		if (value == "1")
+		{
+			Server.SendCmdToClient(client, valName, "0");
+			return;
+		}
+
+		Server.SendCmdToClient(client, valName, "1");
+	}
+
+	private string ConvertStrArrayToOneStr(string[] array)
+	{
+		string new_str = "";
+		for (var i = 0; i < array.Length; i++)
+		{
+			new_str += array[i];
+			if (i != array.Length - 1)
+			{
+				new_str += ", ";
+			}
+		}
+
+		return new_str;
+	}
+
+	private string SetValue<T>(out T value1, T value2)
+	{
+		value1 = value2;
+		return "";
+	}
+
+	private void ParseCmdTypes()
+	{
+		foreach (var cmd in client.Commands)
+		{
+			CommandsType.Add(StrToCommandType(cmd.Key));
+		}
+	}
+
+	private CommandTypes StrToCommandType(string cmdName)
+	{
+		string[] splitedName = cmdName.Split('-');
+		if (splitedName.Length > 1)
+		{
+			string type = splitedName[0];
+			if (CommandTypes.ButtonTF.ToString() == type)
+			{
+				return CommandTypes.ButtonTF;
+			}
+			else if (CommandTypes.InputVariable.ToString() == type)
+			{
+				return CommandTypes.InputVariable;
+			}
+		}
+
+		return CommandTypes.SimpleText;
+	}
+
+
+	private string GetWithoutType(string msg)
+	{
+		string[] splitedMsg = msg.Split('-');
+		if (splitedMsg.Length > 1)
+		{
+			return splitedMsg[1];
+		}
+
+		return msg;
+	}
+}

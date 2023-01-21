@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "/pmprH0owC+8+kLh2jjEYLUvU7dj+oLRaOgmwYXQxX5Ai+YW/B3p2RheHyfOfK/XhPuZ0uaGvVX2YpWgNsUQiw==",
+  "success": true,
+  "projectFilePath": "C:\\Personal\\Programare\\C#\\ConnetToArduino\\ConnetToArduino.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\ghimc\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x86\\6.0.5\\microsoft.netcore.app.runtime.win-x86.6.0.5.nupkg.sha512",
+    "C:\\Users\\ghimc\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x86\\6.0.5\\microsoft.windowsdesktop.app.runtime.win-x86.6.0.5.nupkg.sha512",
+    "C:\\Users\\ghimc\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x86\\6.0.5\\microsoft.aspnetcore.app.runtime.win-x86.6.0.5.nupkg.sha512"
+  ],
+  "logs": []
+}
